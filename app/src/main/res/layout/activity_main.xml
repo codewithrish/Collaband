@@ -6,15 +6,34 @@
     android:layout_height="match_parent"
     tools:context="com.collaband.collaband.MainActivity">
 
-
     <Button
-        android:id="@+id/recordBtn"
+        android:text="Start Recording"
         android:layout_width="match_parent"
+        android:id="@+id/recordBtn"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_marginTop="60dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:text="Tap and Hold To Record"
-        android:textAllCaps="false" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+        <Button
+            android:text="Send this file"
+            android:layout_width="0dp"
+            android:visibility="gone"
+            android:id="@+id/sendFileButton"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+        <Button
+            android:text="Discard this file"
+            android:layout_width="0dp"
+            android:visibility="gone"
+            android:id="@+id/discardFileButton"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/recordLabel"

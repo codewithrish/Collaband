@@ -30,16 +30,22 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity   {
 
     private Button mRecordBtn;
     private TextView mRecordLable;
 
+    private Button sendFileButton, discardFileButton;
     private static String mFileName = null;
     private static final String LOG_TAG = "Record_Log";
 
     private MediaRecorder mRecorder = null;
-    private MediaPlayer   mPlayer = null;
+    private MediaPlayer   mPlayer[] = new MediaPlayer[1000];
+    private MediaPlayer   mP1= null;
+
+    private boolean started = false;
+
+    private int fileIndex = 0;
 
     private StorageReference mStorage;
     private DatabaseReference mDatabase;
@@ -60,23 +66,30 @@ public class MainActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         mRecordBtn = (Button) findViewById(R.id.recordBtn);
+        sendFileButton = (Button) findViewById(R.id.sendFileButton);
+        discardFileButton = (Button) findViewById(R.id.discardFileButton);
         mRecordLable = (TextView) findViewById(R.id.recordLabel);
 
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         mFileName+="/recorded_audio.3gp";
 
-        mRecordBtn.setOnTouchListener(new View.OnTouchListener() {
+        mRecordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+            public void onClick(View v) {
+                if(started == false)
+                {
+                    started = true;
+                    mRecordBtn.setText("Stop Recording");
                     startRecording();
                     mRecordLable.setText("Recording Started .... ");
                 }
-                else if(event.getAction() == MotionEvent.ACTION_UP) {
+                else
+                {
+                    started = false;
+                    mRecordBtn.setText("Start Recording");
                     stopRecording();
                     mRecordLable.setText("Recording Stopped.");
                 }
-                return false;
             }
         });
     }
@@ -87,22 +100,123 @@ public class MainActivity extends AppCompatActivity {
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setOutputFile(mFileName);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
         try {
             mRecorder.prepare();
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
         }
 
-        mRecorder.start();
+        if(fileIndex != 0) {
+            mRecordLable.setText("Wait till the loop starts again...");
+            while(mPlayer[0].getCurrentPosition() != mPlayer[0].getDuration());
+            mRecordLable.setText("Recording Started, please press button to stop.");
+            mRecorder.start();
+
+        }
+        else
+            mRecorder.start();
     }
 
     private void stopRecording() {
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;
-        
-        uploadAudio();
+        mP1 = new MediaPlayer();
+
+        if(fileIndex != 0 && mPlayer[0] != null) {
+            mRecordLable.setText("Wait till the loop starts again...");
+            while(mPlayer[0].getCurrentPosition() != 210);
+            mRecordLable.setText("Recording Stopped, please press button to start again.");
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+
+            try {
+                mP1.setDataSource((new File(mFileName)).toString());
+                mP1.prepare();
+                mP1.start();
+                mP1.setLooping(true);
+                mP1.start();
+                mP1.setLooping(true);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "prepare() failed");
+            }
+
+            sendFileButton.setVisibility(View.VISIBLE);
+            discardFileButton.setVisibility(View.VISIBLE);
+
+            sendFileButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mP1.release();
+                    mP1 = null;
+                    uploadAudio();
+                    sendFileButton.setVisibility(View.GONE);
+                    discardFileButton.setVisibility(View.GONE);
+                }
+            });
+
+            discardFileButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mP1.release();
+                    mP1 = null;
+                    sendFileButton.setVisibility(View.GONE);
+                    discardFileButton.setVisibility(View.GONE);
+                }
+            });
+        }
+        else{
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+
+            try {
+                mP1.setDataSource((new File(mFileName)).toString());
+                mP1.prepare();
+                mP1.start();
+                mP1.setLooping(true);
+                mP1.start();
+                mP1.setLooping(true);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "prepare() failed");
+            }
+
+            sendFileButton.setVisibility(View.VISIBLE);
+            discardFileButton.setVisibility(View.VISIBLE);
+
+            sendFileButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    mP1.release();
+                    mP1 = null;
+                    uploadAudio();
+                    sendFileButton.setVisibility(View.GONE);
+                    discardFileButton.setVisibility(View.GONE);
+                }
+            });
+
+            discardFileButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    mP1.release();
+                    mP1 = null;
+                    sendFileButton.setVisibility(View.GONE);
+                    discardFileButton.setVisibility(View.GONE);
+                }
+            });
+            mDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+
     }
 
     private void uploadAudio() {
@@ -139,8 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "File Downloaded", Toast.LENGTH_SHORT).show();
                 mProgressDialog.dismiss();
 
-
-                startPlaying();
+                startPlaying(localFile);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -149,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
                 mProgressDialog.dismiss();
             }
         });
+
     }
 
     private void updateDatabase() {
@@ -169,20 +283,30 @@ public class MainActivity extends AppCompatActivity {
         //
     }
 
-    private void startPlaying() {
-        mPlayer = new MediaPlayer();
+    private void startPlaying(File mMusic) {
+        mPlayer[fileIndex] = new MediaPlayer();
         try {
-            mPlayer.setDataSource(localFile.toString());
-            mPlayer.prepare();
-            mPlayer.start();
-            mPlayer.setLooping(true);
+            mPlayer[fileIndex].setDataSource(mMusic.toString());
+            mPlayer[fileIndex].prepare();
+            Log.i("mPlayer " + fileIndex, ((String.valueOf(mPlayer[fileIndex].getDuration()))));
+            if (fileIndex == 0) {
+                mPlayer[fileIndex].start();
+                mPlayer[fileIndex].setLooping(true);
+            }
+            else
+            {
+                while(mPlayer[0].getCurrentPosition() != mPlayer[0].getDuration());
+                mPlayer[fileIndex].start();
+                mPlayer[fileIndex].setLooping(true);
+            }
+            fileIndex++;
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
         }
     }
 
     private void stopPlaying() {
-        mPlayer.release();
-        mPlayer = null;
+        mPlayer[fileIndex].release();
+        mPlayer[fileIndex] = null;
     }
 }
