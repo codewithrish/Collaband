@@ -1,3 +1,4 @@
+
 package com.collaband.collaband;
 
 import android.media.AudioManager;
@@ -15,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 
 public class Equiliser extends AppCompatActivity {
@@ -202,3 +202,4 @@ public class Equiliser extends AppCompatActivity {
         }
     }
 }
+

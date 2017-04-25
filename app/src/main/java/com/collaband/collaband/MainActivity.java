@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity   {
     private int val = 100;
 
     static SeekBar sb;
+    private long iTime, fTime;
 
     boolean flag = true;
 
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity   {
             while(mPlayer[0].getCurrentPosition() != mPlayer[0].getDuration());
             mRecordLable.setText("Recording Started, please press button to stop.");
             mRecorder.start();
+            iTime= System.currentTimeMillis();
 
         }
         else
@@ -147,9 +149,14 @@ public class MainActivity extends AppCompatActivity   {
 
         if(fileIndex != 0 && mPlayer[0] != null) {
             mRecordLable.setText("Wait till the loop starts again...");
-            while(mPlayer[0].getCurrentPosition() != val); // Callibration Value 290 motorola && 190 for Nexus
+            //while(mPlayer[0].getCurrentPosition() != val); // Callibration Value 290 motorola && 190 for Nexus
             //while(mPlayer[0].getCurrentPosition() != 190); // Callibration Value 290 motorola && 190 for Nexus
             mRecordLable.setText("Recording Stopped, please press button to start again.");
+            fTime= System.currentTimeMillis();
+            while((fTime - iTime - 300) % mPlayer[0].getDuration() != 0)
+            {
+                fTime= System.currentTimeMillis();
+            }
             mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
