@@ -6,20 +6,29 @@
     android:layout_height="match_parent"
     tools:context="com.collaband.collaband.MainActivity">
 
-    <Button
-        android:text="Start Recording"
+    <SeekBar
+        android:id="@+id/seekBar1"
+        android:visibility="gone"
         android:layout_width="match_parent"
-        android:id="@+id/recordBtn"
-        android:layout_height="wrap_content" />
-
-    <LinearLayout android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_marginTop="60dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp" />
+    <Button
+        android:background="@drawable/start_recording"
+        android:layout_width="200dp"
+        android:id="@+id/recordBtn"
+        android:layout_centerInParent="true"
+        android:layout_height="200dp" />
+
+    <LinearLayout android:orientation="horizontal"
+
+        android:layout_below="@+id/recordBtn"
+        android:layout_width="match_parent"
+        android:layout_marginTop="60dp"
+        android:layout_height="wrap_content">
         <Button
+            style="@style/Base.Widget.AppCompat.Button.Colored"
             android:text="Send this file"
             android:layout_width="0dp"
             android:visibility="gone"
@@ -27,6 +36,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content" />
         <Button
+            style="@style/Base.Widget.AppCompat.Button.Colored"
             android:text="Discard this file"
             android:layout_width="0dp"
             android:visibility="gone"
@@ -37,14 +47,12 @@
 
     <TextView
         android:id="@+id/recordLabel"
+        android:layout_marginTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Onine Music Collaboration"
         android:textAlignment="center"
-        android:textSize="20dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:textSize="20dp" />
 
 
 </RelativeLayout>

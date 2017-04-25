@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity   {
 
@@ -54,6 +56,14 @@ public class MainActivity extends AppCompatActivity   {
 
     private File localFile = null;
 
+    private int val = 100;
+
+    static SeekBar sb;
+
+    boolean flag = true;
+
+    Thread updateSeekBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +80,8 @@ public class MainActivity extends AppCompatActivity   {
         discardFileButton = (Button) findViewById(R.id.discardFileButton);
         mRecordLable = (TextView) findViewById(R.id.recordLabel);
 
+        sb = (SeekBar)findViewById(R.id.seekBar1);
+
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         mFileName+="/recorded_audio.3gp";
 
@@ -79,19 +91,32 @@ public class MainActivity extends AppCompatActivity   {
                 if(started == false)
                 {
                     started = true;
-                    mRecordBtn.setText("Stop Recording");
+                    mRecordLable.setText("Stop Recording");
+                    mRecordBtn.setBackgroundResource(R.drawable.stop_recording);
                     startRecording();
                     mRecordLable.setText("Recording Started .... ");
                 }
                 else
                 {
                     started = false;
-                    mRecordBtn.setText("Start Recording");
+                    mRecordLable.setText("Start Recording");
+                    mRecordBtn.setBackgroundResource(R.drawable.start_recording);
                     stopRecording();
                     mRecordLable.setText("Recording Stopped.");
                 }
             }
         });
+
+        StorageReference delete = mStorage.child("Audio").child("new_audio.3gp");
+        delete.delete();
+        updateDatabase();
+
+        if(flag)
+        {
+            mProgressDialog.setMessage("Preparing Studio ... ");
+            mProgressDialog.show();
+            flag = false;
+        }
     }
 
     private void startRecording() {
@@ -122,7 +147,8 @@ public class MainActivity extends AppCompatActivity   {
 
         if(fileIndex != 0 && mPlayer[0] != null) {
             mRecordLable.setText("Wait till the loop starts again...");
-            while(mPlayer[0].getCurrentPosition() != 210);
+            while(mPlayer[0].getCurrentPosition() != val); // Callibration Value 290 motorola && 190 for Nexus
+            //while(mPlayer[0].getCurrentPosition() != 190); // Callibration Value 290 motorola && 190 for Nexus
             mRecordLable.setText("Recording Stopped, please press button to start again.");
             mRecorder.stop();
             mRecorder.release();
@@ -131,6 +157,16 @@ public class MainActivity extends AppCompatActivity   {
             try {
                 mP1.setDataSource((new File(mFileName)).toString());
                 mP1.prepare();
+                val = mPlayer[0].getDuration() - mP1.getDuration();
+                if(val < 0)
+                {
+                    val = mPlayer[0].getDuration() + val;
+                }
+                else if(val > mPlayer[0].getDuration())
+                {
+                    val = val - mPlayer[0].getDuration();
+                }
+                Log.i("val", ""+val);
                 mP1.start();
                 mP1.setLooping(true);
                 mP1.start();
@@ -221,8 +257,10 @@ public class MainActivity extends AppCompatActivity   {
 
     private void uploadAudio() {
 
-        mProgressDialog.setMessage("Uploading Audio .... ");
-        mProgressDialog.show();
+            mProgressDialog.setMessage("Uploading Audio .... ");
+            mProgressDialog.show();
+
+
         StorageReference filepath = mStorage.child("Audio").child("new_audio.3gp");
         Uri uri = Uri.fromFile(new File(mFileName));
         filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -236,9 +274,11 @@ public class MainActivity extends AppCompatActivity   {
     }
 
     private void downloadAudio() {
-        mProgressDialog.setMessage("Downloading Audio .... ");
-        mProgressDialog.show();
 
+        if(!flag) {
+            mProgressDialog.setMessage("Please wait ... ");
+            mProgressDialog.show();
+        }
         StorageReference filepath = mStorage.child("Audio").child("new_audio.3gp");
 
         try {
@@ -258,7 +298,7 @@ public class MainActivity extends AppCompatActivity   {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, "File can't be Downloaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Ready To Use! Create Music :)", Toast.LENGTH_SHORT).show();
                 mProgressDialog.dismiss();
             }
         });
@@ -292,11 +332,79 @@ public class MainActivity extends AppCompatActivity   {
             if (fileIndex == 0) {
                 mPlayer[fileIndex].start();
                 mPlayer[fileIndex].setLooping(true);
+
+
+
+                sb.setMax( mPlayer[0].getDuration());
+
+                sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        mPlayer[0].seekTo(seekBar.getProgress());
+                    }
+                });
+
+                updateSeekBar = new Thread(){
+                    @Override
+                    public void run() {
+                        int totalDuration = mPlayer[0].getDuration();
+                        int currentPosition = 0;
+                        while(currentPosition<totalDuration){
+                            try{
+                                sleep(50);
+                                currentPosition = mPlayer[0].getCurrentPosition();
+                                sb.setProgress(currentPosition);
+                                double timeRemaining = totalDuration - currentPosition;
+
+                                String min1="",sec1="";
+                                int min =  (int)TimeUnit.MILLISECONDS.toMinutes((long) currentPosition);
+                                int sec = (int)(TimeUnit.MILLISECONDS.toSeconds((long) currentPosition)- TimeUnit.MILLISECONDS.toMinutes((long) currentPosition)*60);
+                                if(min<=9){
+                                    min1 = "0"+min;
+                                }
+                                else{
+                                    min1 = min+"";
+                                }
+                                if(sec<=9){
+                                    sec1 = "0"+sec;
+                                }
+                                else{
+                                    sec1 = sec+"";
+                                };
+                            }
+                            catch (Exception ex){
+                                ex.printStackTrace();
+                            }
+                        }
+
+                    }
+                };
+                updateSeekBar.start();
             }
             else
             {
                 while(mPlayer[0].getCurrentPosition() != mPlayer[0].getDuration());
-                mPlayer[fileIndex].start();
+                mPlayer[fileIndex].start();/*
+                mPlayer[0].setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        Toast.makeText(MainActivity.this, "Completed", Toast.LENGTH_SHORT).show();
+
+                        for (int loopI = 1; loopI < fileIndex; loopI++){
+                            mPlayer[loopI].start();
+                        }
+                    }
+                });*/
                 mPlayer[fileIndex].setLooping(true);
             }
             fileIndex++;
@@ -308,5 +416,14 @@ public class MainActivity extends AppCompatActivity   {
     private void stopPlaying() {
         mPlayer[fileIndex].release();
         mPlayer[fileIndex] = null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (int i = 0; i < fileIndex; i++)
+        {
+            mPlayer[i].stop();
+        }
     }
 }
