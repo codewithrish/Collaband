@@ -1,58 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.collaband.collaband.MainActivity">
+    tools:context="com.collaband.collaband.MainActivity"
+    android:background="@android:color/white">
 
-    <SeekBar
-        android:id="@+id/seekBar1"
-        android:visibility="gone"
+
+    <TextView
+        android:id="@+id/name"
+        android:textColor="#006699"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        android:layout_marginTop="35dp"
+        android:layout_marginBottom="20dp"
+        android:text="- Online Music Collaboration -"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_below="@+id/name"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/recordLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp" />
+        android:text="Record something and send!"
+        android:textAlignment="center"
+        android:textSize="20dp" />
+
+    <RelativeLayout
+        android:id="@+id/main"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/recordLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+        <ImageView
+            android:id="@+id/back_main"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/back" />
+
+        <ImageView
+            android:layout_marginTop="87dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/collab"
+            android:layout_centerHorizontal="true" />
+
+
+
+    </RelativeLayout>
+
     <Button
-        android:background="@drawable/start_recording"
-        android:layout_width="200dp"
+        android:layout_below="@+id/main"
         android:id="@+id/recordBtn"
-        android:layout_centerInParent="true"
-        android:layout_height="200dp" />
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:background="@drawable/start_recording"/>
+
+
+
+
+
 
     <LinearLayout android:orientation="horizontal"
-
-        android:layout_below="@+id/recordBtn"
         android:layout_width="match_parent"
         android:layout_marginTop="60dp"
+        android:layout_below="@+id/recordBtn"
         android:layout_height="wrap_content">
         <Button
             style="@style/Base.Widget.AppCompat.Button.Colored"
             android:text="Send this file"
-            android:layout_width="0dp"
             android:visibility="gone"
+            android:layout_width="0dp"
             android:id="@+id/sendFileButton"
             android:layout_weight="1"
             android:layout_height="wrap_content" />
         <Button
             style="@style/Base.Widget.AppCompat.Button.Colored"
             android:text="Discard this file"
-            android:layout_width="0dp"
             android:visibility="gone"
+            android:layout_width="0dp"
             android:id="@+id/discardFileButton"
             android:layout_weight="1"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/recordLabel"
-        android:layout_marginTop="50dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Onine Music Collaboration"
-        android:textAlignment="center"
-        android:textSize="20dp" />
+
+
+
+
 
 
 </RelativeLayout>

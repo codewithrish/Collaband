@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity   {
         discardFileButton = (Button) findViewById(R.id.discardFileButton);
         mRecordLable = (TextView) findViewById(R.id.recordLabel);
 
-        sb = (SeekBar)findViewById(R.id.seekBar1);
+        //sb = (SeekBar)findViewById(R.id.seekBar1);
 
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         mFileName+="/recorded_audio.3gp";
@@ -149,8 +149,8 @@ public class MainActivity extends AppCompatActivity   {
 
         if(fileIndex != 0 && mPlayer[0] != null) {
             mRecordLable.setText("Wait till the loop starts again...");
-            //while(mPlayer[0].getCurrentPosition() != val); // Callibration Value 290 motorola && 190 for Nexus
-            //while(mPlayer[0].getCurrentPosition() != 190); // Callibration Value 290 motorola && 190 for Nexus
+            //while(mPlayer[0].getCurrentPosition() != val); // Calibration Value 290 motorola && 190 for Nexus
+            //while(mPlayer[0].getCurrentPosition() != 190); // Calibration Value 290 motorola && 190 for Nexus
             mRecordLable.setText("Recording Stopped, please press button to start again.");
             fTime= System.currentTimeMillis();
             while((fTime - iTime - 300) % mPlayer[0].getDuration() != 0)
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity   {
 
 
 
-                sb.setMax( mPlayer[0].getDuration());
+                /*sb.setMax( mPlayer[0].getDuration());
 
                 sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity   {
                     public void onStopTrackingTouch(SeekBar seekBar) {
                         mPlayer[0].seekTo(seekBar.getProgress());
                     }
-                });
+                });*/
 
                 updateSeekBar = new Thread(){
                     @Override
